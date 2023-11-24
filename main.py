@@ -10,9 +10,32 @@ option = st.selectbox("Select data to view",
                       ("Temperature", "Sky"))
 st.subheader(f"{option} for the next {days} days in {place}.")
 
-data = get_data(place, days, option)
+if place:
+    # Call the api to get the data based  on the type chosen
+    filtered_data = get_data(place, days)
+    if option == "Temperature":
+        temperatures = [dict["main"]["temp"] for dict in filtered_data]
+        dates = [dict["dt_txt"] for dict in filtered_data]
+        figure= px.line(x=dates, y=temperatures, labels={"x": "Date", "y": "Temperature (C)"})
+        st.plotly_chart(figure)
 
-# d, t = get_data(days)
+    elif option == "Sky":
+        images = {"Clear": "resources/clear.png" , "Clouds": "resources/cloud.png" ,
+                "Rain": "resources/rain.png", "Snow": "resources/clear.png"}
+        sky_conditions = [dict["weather"][0]["main"] for dict in filtered_data]
+        image_paths = [images[condition] for condition in sky_conditions]
+        st.image(image_paths, width=115 )
 
-figure= px.line(x=d, y=t, labels={"x": "Date", "y": "Temperature (C)"})
-st.plotly_chart(figure)
+
+        # images = {"Clear": "resources/clear.png" , "Clouds": "resources/cloud.png" ,
+        #         "Rain": "resources/rain.png", "Snow": "resources/clear.png"}
+        # sky_conditions = [dict["weather"][0]["description"] for dict in filtered_data]
+        # # image_paths = [images[condition] for condition in sky_conditions]
+        # if "clear" in sky_conditions:
+        #     st.image(images["Clear"])
+        # elif "clouds" in sky_conditions:
+        #     st.image(images["Clouds"])
+        # elif "snow" in sky_conditions:
+        #     st.image(images["Snow"])
+        # elif "rain" in sky_conditions:
+        #     st.image(images["Rain"])
